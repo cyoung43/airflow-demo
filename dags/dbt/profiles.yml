@@ -1,0 +1,16 @@
+dbt:
+  target: dev
+  outputs:
+    dev:
+      account: pn17132.us-east-2.aws
+      # "{{ env_var('AIRFLOW_VAR_SNOWFLAKE_ACCOUNT') }}"
+      database: AIRBYTE
+      password: Bacolod@16
+      # "{{ env_var('AIRFLOW_VAR_SNOWFLAKE_PASSWORD') }}"
+      role: SYSADMIN
+      schema: DW
+      threads: 8
+      type: snowflake
+      user: CHRIS
+      # "{{ env_var('AIRFLOW_VAR_SNOWFLAKE_USERNAME') }}"
+      warehouse: AIRBYTE_WAREHOUSE

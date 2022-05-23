@@ -1,0 +1,13 @@
+
+version: 2
+
+sources:
+  - name: airbyte
+    database: AIRBYTE_DATABASE
+    schema: AIRBYTE_SCHEMA
+    tables: 
+      - name: NBA_DATA
+      - name: PRODUCT
+      - name: SALESORDERDETAIL
+      - name: CUSTOMER
+      - name: EMPLOYEE

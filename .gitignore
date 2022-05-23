@@ -1,0 +1,8 @@
+.git
+.env
+airflow_settings.yaml
+pod-config.yml
+/dbt-env
+/.astro
+/dbt_logs
+/dbt_target
