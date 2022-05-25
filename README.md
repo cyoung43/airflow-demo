@@ -41,6 +41,7 @@ Airflow triggers airbyte jobs through an HTTP post. Very simple to set up.
         - Grab the id that comes immediately after the `connections/`. This is the airbyte job that airflow will trigger (`85dd4962-e5c5-4a50-9a08-f8a4a0bad026`)
         - In this project, the id is set as an airflow variable, which is then pulled into the dag as `NBA`
     * When the dag is triggered, airflow will send a `POST` request to airbyte api that will trigger the specified job
+4. In theory, this should work, but due to Docker networking issues it will probably fail. Check out the [debugging](#docker-networking) section below
 
 ### Debugging
 #### Docker Networking
@@ -67,11 +68,29 @@ If running both airflow and airbyte locally through Docker, you will likely bash
     - `docker network connect <network name> webserver` 
     - `docker network connect <network name> airbyte-server`
     - Etc
+    - `TO DO:` Add in script that will create a docker network and iterate through containers and add them to that network
 5. Once all the docker containers are on the same network, go to the airbyte HTTP connection in the airflow UI and update the host to be `http://airbyte-server`. The port will be `8001`
     - ![airbyte_connection.png](./img/airbyte.png)
 
 #### Airflow 2.3.0 & DBT
-1. 
+1. I was running into issues using DBT operators from `airflow-dbt` with Airflow 2.3.0. I'm interested in testing out the `airflow-dbt-python` package instead, but for now have a temporary fix
+2. Make sure `airflow-dbt`, `dbt-snowflake` are installed on the airflow server
+3. Add a `BashOperator` to `cd` into `/home/astro/.local/bin` and check if `dbt` exists in the virtual directory
+    - `cd /home/astro/.local/bin && ls`
+4. If it exists, add this path as a parameter in the `dbt_operators` for `dbt_bin`
+    - ```python
+        # DBT Run
+        # /home/astro/.local/bin/dbt
+        dbt_run = DbtRunOperator(
+            task_id="dbt_run",
+            dir="/usr/local/airflow/dags/dbt/",
+            dbt_bin='/home/astro/.local/bin/dbt',
+            profiles_dir='/usr/local/airflow/dags/dbt/',
+            trigger_rule="all_done", # Run even if previous tasks failed
+        )
+        ```
+5. If dbt does not exist within `/home/astro/.local/bin/dbt`, then do a one time install via a bash operator `pip3 install airflow-dbt && pip3 install dbt-snowflake`
+6. Then repeat step 4. DBT operators should work now
 
 ## Other Features in this Repo
 ### Slack notifications
