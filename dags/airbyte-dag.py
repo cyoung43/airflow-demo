@@ -113,7 +113,7 @@ def airbyte_dag():
     )
 
     # If DBT isn't located, run a bash command to install and check that the bin location exists
-    # pip3 install airflow-dbt && pip3 install dbt-snowflake
+    # if not, insert this command to run => pip3 install airflow-dbt && pip3 install dbt-snowflake
     # test = BashOperator(
     #     task_id='test',
     #     bash_command='cd /home/astro/.local/bin && ls -a'
