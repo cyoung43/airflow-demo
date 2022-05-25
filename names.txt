@@ -1,0 +1,11 @@
+CONTAINER ID   PORTS                                NAMES
+42f34b1560e3   0.0.0.0:8080->8080/tcp               webserver
+5b7233ddd6a6                                        scheduler
+ba9871da883b                                        triggerer
+e3a5f1ed5cc7   6933-6935/tcp                        airbyte-temporal
+383a1a3fc566                                        airbyte-scheduler
+105c000466a3   0.0.0.0:8000->80/tcp                 airbyte-webapp
+e6a4e9342ff1                                        airbyte-worker
+895b3950cec9   8000/tcp, 0.0.0.0:8001->8001/tcp     airbyte-server
+b25eeab3ea6f   5432/tcp                             airbyte-db
+bf15ecd56bef   0.0.0.0:5432->5432/tcp               airflow_42d2c6-postgres

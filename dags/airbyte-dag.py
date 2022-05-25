@@ -14,6 +14,7 @@ from airflow_dbt.operators.dbt_operator import DbtRunOperator, DbtSeedOperator, 
 from airflow.hooks.base_hook import BaseHook
 from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from airflow.version import version
+from airflow.decorators import dag
 from datetime import datetime, timedelta
 import pytz
 from airflow import settings
@@ -85,19 +86,26 @@ default_args={
     "start_date": datetime(2021, 12, 1),
     "catchup": False,
     "on_failure_callback": task_fail_slack_alert,
-    #"on_success_callback": task_succeed_slack_alert
+    "on_success_callback": task_succeed_slack_alert
 }
 
 ################################## DAG ######################################
-with DAG(
-    dag_id='airbyte',
-    schedule_interval="0 12 * * *", # Run at 5:00am MST
-    start_date=datetime(2022, 1, 1),
+@dag(
+    schedule_interval='@daily',
     default_args=default_args,
+    start_date=datetime(2022, 1, 1),
     catchup=False,
-    max_active_runs = 1,
-    concurrency = 4        
-) as dag:
+    tags=['airbyte']
+)
+def airbyte_dag():
+    '''
+    ### Airbyte DAG
+    This is a simple ELT data pipeline dag that demonstrates the AirbyteTriggerSyncOperator, which makes POST requests to 
+    Airbyte's API. The operator will kick off an airbyte sync job, after which the DBT operation will run the transformation piece
+    of the Airflow dag.
+
+    For more info, check out the README.md
+    '''
 
     # Dummy operator: usually used as a start node
     t0 = DummyOperator(
@@ -134,3 +142,5 @@ with DAG(
     # t0 >> create_tables >> dbt_seed >> dbt_snapshot >> dbt_run
     t0 >> extract_nba >> dbt_run
     # t0 >> test
+
+airbyte_dag = airbyte_dag()
