@@ -97,14 +97,22 @@ with DAG(
     catchup=False,
     max_active_runs = 1,
     concurrency = 4        
-) as f:
+) as dag:
 
     # Dummy operator: usually used as a start node
     t0 = DummyOperator(
         task_id='start'
     )
 
+    # If DBT isn't located, run a bash command to install and check that the bin location exists
+    # pip3 install airflow-dbt && pip3 install dbt-snowflake
+    # test = BashOperator(
+    #     task_id='test',
+    #     bash_command='cd /home/astro/.local/bin && ls -a'
+    # )
+
     # DBT Run
+    # /home/astro/.local/bin/dbt
     dbt_run = DbtRunOperator(
         task_id="dbt_run",
         dir="/usr/local/airflow/dags/dbt/",
@@ -113,21 +121,16 @@ with DAG(
         trigger_rule="all_done", # Run even if previous tasks failed
     )
 
-    # test = BashOperator(
-    #     task_id='test',
-    #     bash_command='curl http://5e42810d4206:8001'
-    # )
 
-    # extract_nba = AirbyteTriggerSyncOperator(
-    #     task_id='extract_nba',
-    #     airbyte_conn_id='airbyte',
-    #     connection_id=NBA,
-    #     asynchronous=False,
-    #     timeout=3600,
-    #     wait_seconds=3
-    # )
+    extract_nba = AirbyteTriggerSyncOperator(
+        task_id='extract_nba',
+        airbyte_conn_id='airbyte',
+        connection_id=NBA,
+        asynchronous=False,
+        timeout=3600,
+        wait_seconds=3
+    )
 
     # t0 >> create_tables >> dbt_seed >> dbt_snapshot >> dbt_run
-    t0 >> dbt_run
-    # /home/astro/.local/lib/python3.9/site-packages/dbt
+    t0 >> extract_nba >> dbt_run
     # t0 >> test
